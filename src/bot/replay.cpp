@@ -31,7 +31,9 @@ class $modify(RPGJBaseGameLayer, GJBaseGameLayer)
                 {
                     auto step = static_cast<unsigned long long>(in.preciseFrame);
                     if (step != g_frame) { continue; }
+                    
                     double alpha = in.preciseFrame - step;
+
                     if (alpha < 1e-4) { GJBaseGameLayer::handleButton(in.isHolding, static_cast<int>(PlayerButton::Jump), in.isPlayer1); }
                     else { stepInputs.push_back({alpha, in.isHolding, in.isPlayer1}); }
                 }
@@ -49,18 +51,13 @@ class $modify(RPGJBaseGameLayer, GJBaseGameLayer)
 
     void processQueuedButtons(float dt, bool clearInputQueue) 
     {
-        if (replayStatus == 2) 
-        {
-            return GJBaseGameLayer::processQueuedButtons(dt, clearInputQueue);
-        }
+        if (replayStatus == 2) { return GJBaseGameLayer::processQueuedButtons(dt, clearInputQueue); }
 
-        if (blockInputs && replayStatus == 1) 
-        {
-            m_queuedButtons.clear();
-        }
+        if (blockInputs && replayStatus == 1) { m_queuedButtons.clear(); }
 
         GJBaseGameLayer::processQueuedButtons(dt, clearInputQueue);
     }
+
 };
 
 class $modify(ReplayPlayLayer, PlayLayer)
@@ -69,7 +66,7 @@ class $modify(ReplayPlayLayer, PlayLayer)
     {
         // Whoever is about to read the following lines of code, I am so sorry </3
         // Theres a million other better ways of doing everything i am doing here
-        if (m_playerDied && replayStatus == 0)
+        if (m_playerDied && replayStatus == 0 || replayStatus == 1)
         {
             // If you release after dying, the other parts of my code clear queuedButtons and you keep jumping after respawning
             // This fixes that :3
